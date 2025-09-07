@@ -1,47 +1,405 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charity Water Landing Page</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Charity:Water — Make a meaningful impact</title>
+
+  <style>
+    /* =========================
+       DESIGN TOKENS
+       ========================= */
+    :root{
+      --brand-primary: #77A8BB;   /* hero blue */
+      --brand-accent:  #F5A623;   /* donate buttons */
+      --text-dark:     #14343E;
+      --muted:         #587680;
+      --white:         #FFFFFF;
+
+      --shadow:        0 10px 24px rgba(20,52,62,.12);
+      --elev-1:        0 6px 16px rgba(20,52,62,.12);
+      --elev-2:        0 12px 28px rgba(20,52,62,.16);
+
+      --radius:        14px;
+      --radius-xl:     20px;
+      --maxw:          1200px;
+
+      /* Type scale */
+      --fs-h1:   clamp(28px, 6vw, 56px);
+      --fs-h2:   clamp(22px, 3.2vw, 32px);
+      --fs-body: clamp(15px, 1.6vw, 18px);
+      --fs-brand:clamp(16px, 1.8vw, 18px);
+      --fs-btn:  clamp(16px, 2vw, 18px);
+
+      /* Motion */
+      --ease-out: cubic-bezier(.16,1,.3,1);
+      --ease-in:  cubic-bezier(.32,0,.67,0);
+      --t-fast:   160ms;
+      --t-med:    260ms;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: "Proxima Nova","ProximaNova", Montserrat, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-dark);
+      background: var(--white);
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* =========================
+       HEADER
+       ========================= */
+    header{
+      width: 100%;
+      background: var(--white);
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 0 rgba(0,0,0,.04);
+    }
+    .nav{
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; text-decoration:none; color:#1e2f35; min-width:0;
+      transition: transform var(--t-fast) var(--ease-out);
+    }
+    .brand:hover{ transform: translateY(-1px); }
+    .logo{ height: clamp(26px,4vw,34px); width:auto; display:block; flex:0 0 auto; }
+    .brand-text{
+      font-size: var(--fs-brand); font-weight:700; letter-spacing:.3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .donate-top{
+      background: var(--brand-accent); color: var(--white);
+      border:none; padding: 10px 18px; border-radius:12px;
+      font-weight:700; font-size: var(--fs-btn);
+      text-decoration:none; box-shadow: var(--elev-1); line-height:1;
+      transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-med) var(--ease-out), filter var(--t-fast) var(--ease-out);
+    }
+    .donate-top:hover{ transform: translateY(-1px); box-shadow: var(--elev-2); filter: brightness(1.06); }
+    .donate-top:active{ transform: translateY(0); filter: brightness(.98); }
+    .donate-top:focus-visible{ outline: 3px solid #1a1a1a; outline-offset: 3px; }
+
+    /* =========================
+       HERO
+       ========================= */
+    .hero{
+      position: relative;
+      background: var(--brand-primary);
+      overflow: hidden;
+      isolation: isolate;
+      min-height: 100vh;   /* desktop fill */
+      min-height: 100svh;  /* mobile visual viewport */
+      display: flex; align-items: center;
+    }
+    /* Visible bottom fade (under content) */
+    .hero::before{
+      content: "";
+      position: absolute; left:0; right:0; bottom:0;
+      height: 42vh; max-height: 520px;
+      background: linear-gradient(
+        to bottom,
+        rgba(119,168,187,0)   0%,
+        rgba(119,168,187,.35) 35%,
+        rgba(255,255,255,.88) 85%,
+        #ffffff               100%
+      );
+      z-index: 0; pointer-events:none;
+    }
+    /* Angled white divider (above fade, below content) */
+    .hero::after{
+      content:"";
+      position:absolute; left:-10%; right:-10%; bottom:-12%;
+      height: clamp(160px, 16vw, 240px);
+      background:#ffffff;
+      transform: rotate(-6deg);
+      box-shadow: 0 -8px 24px rgba(0,0,0,.05);
+      z-index: 1; pointer-events:none;
+    }
+    /* Optional soft highlights (static) */
+    .hero-grad{
+      position:absolute; inset:0; z-index:0; pointer-events:none;
+      background: radial-gradient(900px 450px at 12% 8%, rgba(255,255,255,.18), transparent 60%),
+                  radial-gradient(700px 360px at 88% 20%, rgba(255,255,255,.10), transparent 60%);
+    }
+
+    .hero-inner{
+      position: relative; z-index: 2; /* ensure content sits above overlays */
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 48px 20px 64px 20px;
+      display: grid; grid-template-columns: 1.15fr 1fr;
+      gap: clamp(20px, 4vw, 36px);
+      align-items: center; width: 100%;
+    }
+
+    .headline{ font-weight:800; font-size:var(--fs-h1); color:var(--white); margin:0 0 12px; line-height:1.1; }
+    .subcopy{ color:rgba(255,255,255,.95); font-size:var(--fs-body); max-width:62ch; margin-bottom:22px; }
+
+    /* CTA */
+    .cta-pill{
+      background: var(--white);
+      border-radius: 999px;
+      padding: 12px;
+      width: min(640px,100%);
+      display:flex; align-items:center; gap:12px; flex-wrap: wrap;
+      box-shadow: var(--shadow);
+      transition: box-shadow var(--t-med) var(--ease-out), transform var(--t-fast) var(--ease-out);
+    }
+    .cta-pill:focus-within{ box-shadow: 0 0 0 6px rgba(255,255,255,.65), var(--elev-2); transform: translateY(-1px); }
+    .cta-text{ border:none; background:transparent; font-size:var(--fs-btn); padding:10px 12px; color:#20373E; flex:1 1 220px; min-width:0; }
+    .cta-text::placeholder{ color:#7a8b91; }
+    .cta-btn{
+      background:var(--brand-accent); color:var(--white);
+      font-weight:800; border:none; padding:12px 22px; border-radius:12px;
+      cursor:pointer; box-shadow: var(--elev-1); font-size:var(--fs-btn);
+      flex:0 0 auto; text-align:center;
+      transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-med) var(--ease-out), filter var(--t-fast) var(--ease-out);
+    }
+    .cta-btn:hover{ transform: translateY(-1px); box-shadow: var(--elev-2); filter: brightness(1.06); }
+    .cta-btn:active{ transform: translateY(0); filter: brightness(.98); }
+    .cta-btn:focus-visible{ outline: 3px solid #1a1a1a; outline-offset: 3px; }
+
+    .hero-card{
+      background:#0b2027; border-radius:var(--radius-xl); overflow:hidden;
+      box-shadow: var(--shadow); aspect-ratio:16/11; display:grid; place-items:center;
+      min-height:280px; perspective:1000px;
+    }
+    .hero-card img{
+      width:100%; height:100%; object-fit:cover; display:block;
+      transition: transform 600ms var(--ease-out), filter var(--t-med) var(--ease-out);
+      will-change: transform;
+    }
+    .hero-card:hover img{ transform: scale(1.03) rotateX(0.6deg) rotateY(-0.6deg); filter: saturate(1.05) contrast(1.02); }
+
+    /* =========================
+       CONTENT SECTIONS
+       ========================= */
+    .section{ max-width: var(--maxw); margin: 28px auto 64px; padding: 0 20px; }
+    .section h2{ font-size: var(--fs-h2); margin: 0 0 12px; }
+    .muted{ color: var(--muted); }
+
+    .grid{ display: grid; gap: 16px; }
+    .grid.auto-tiles{ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+    .tile{
+      background:#fff; border-radius: 16px; padding: 18px;
+      box-shadow: var(--elev-1);
+      transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-med) var(--ease-out);
+    }
+    .tile:hover{ transform: translateY(-2px); box-shadow: var(--elev-2); }
+    .tile h3{ margin: 0 0 6px; font-size: 18px; }
+    .tile .price{ font-weight: 800; font-size: 22px; }
+
+    .quote{
+      background: #F8FCFD; border: 1px solid rgba(20,52,62,.08); border-radius: 16px;
+      padding: 20px; box-shadow: 0 2px 10px rgba(20,52,62,.06);
+    }
+    .quote p{ margin: 0 0 8px; font-size: 18px; }
+    .quote small{ color: var(--muted); }
+
+    details{
+      background:#fff; border-radius: 14px; padding: 14px 16px; box-shadow: var(--elev-1);
+      transition: box-shadow var(--t-med) var(--ease-out), transform var(--t-fast) var(--ease-out);
+    }
+    details + details{ margin-top: 10px; }
+    details[open]{ box-shadow: var(--elev-2); transform: translateY(-1px); }
+    summary{ cursor: pointer; font-weight: 700; list-style: none; position: relative; }
+    summary::-webkit-details-marker{ display:none; }
+    summary::after{ content: "＋"; position: absolute; right: 0; top: 0; transition: transform var(--t-fast) var(--ease-out); }
+    details[open] summary::after{ content: "−"; }
+
+    a.link-underline{ position: relative; text-decoration: none; }
+    a.link-underline::after{
+      content:""; position:absolute; left:0; bottom:-2px; height:2px; width:100%;
+      background: currentColor; transform: scaleX(0); transform-origin: left;
+      transition: transform var(--t-med) var(--ease-out);
+    }
+    a.link-underline:hover::after{ transform: scaleX(1); }
+
+    footer{ max-width:var(--maxw); margin:16px auto 60px; padding:0 20px; color:#587680; font-size:14px; }
+
+    /* =========================
+       RESPONSIVE / MOBILE FIXES
+       ========================= */
+    @media (max-width: 1000px){
+      .hero-inner{ grid-template-columns: 1fr; }
+      .hero-card{ order: 2; }
+    }
+    @media (max-width: 720px){
+      /* Shorter hero on phones (prevents cramped feel) */
+      .hero{ min-height: auto; }
+      .hero-inner{ grid-template-columns: 1fr; gap: 16px; padding-top: 28px; padding-bottom: 40px; }
+
+      /* Keep blue visible but tame the fade/angle */
+      .hero::before{
+        height: 24vh; max-height: 240px;
+        background: linear-gradient(
+          to bottom,
+          rgba(119,168,187,0)   0%,
+          rgba(119,168,187,.28) 45%,
+          rgba(255,255,255,.88) 90%,
+          #ffffff               100%
+        );
+      }
+      .hero::after{ bottom: -16%; height: clamp(120px, 18vw, 180px); transform: rotate(-6deg); }
+      .hero-grad{ display: none; }
+
+      /* Nav: donate under brand */
+      .nav{ row-gap: 8px; }
+      .donate-top{ order: 2; width: 100%; text-align: center; padding: 12px 16px; border-radius: 10px; }
+
+      /* Type + CTA sizing */
+      .headline{ font-size: clamp(24px, 7vw, 34px); line-height: 1.15; margin-bottom: 10px; }
+      .subcopy{ font-size: clamp(14px, 3.7vw, 16px); margin-bottom: 14px; }
+      .cta-pill{ padding: 10px; border-radius: 16px; gap: 10px; }
+      .cta-text{ font-size: clamp(15px, 4vw, 17px); }
+      .cta-btn{ width: 100%; padding: 14px 18px; font-size: clamp(16px, 4.2vw, 18px); }
+
+      /* Image height on short screens */
+      .hero-card{ min-height: 220px; }
+
+      /* Sections: single column, tighter spacing */
+      .section{ margin: 22px auto 48px; }
+      .grid.auto-tiles{ grid-template-columns: 1fr; }
+      .tile{ padding: 16px; border-radius: 14px; }
+      .tile h3{ font-size: 17px; }
+      .tile .price{ font-size: 20px; }
+    }
+    @media (max-width: 420px){
+      .brand-text{ max-width: 60vw; }
+      .headline{ word-break: break-word; }
+    }
+
+    /* Motion accessibility */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Hero Section: This is the main banner at the top of the page -->
-    <section class="hero">
-        <!-- Main headline -->
-        <h1>Clean Water for Everyone</h1>
-        <!-- Subheadline -->
-        <p>Join us in bringing safe, clean water to communities in need.</p>
-    </section>
+  <!-- Header -->
+  <header>
+    <nav class="nav" aria-label="Main">
+      <a class="brand" href="#">
+        <img class="logo" src="https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/102013/charity_water-converted.png?itok=2ZWJ5Cuz" alt="Charity:Water logo">
+        <span class="brand-text">Charity:Water</span>
+      </a>
+      <a href="https://www.charitywater.org/donate" class="donate-top" target="_blank" rel="noopener">Donate</a>
+    </nav>
+  </header>
 
-    <!-- Story Section: This tells the story of the nonprofit -->
-    <section class="story">
-        <h2>Our Story</h2>
-        <p>
-         
-    </section>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-grad"></div> <!-- soft highlights (static) -->
+    <div class="hero-inner">
+      <div>
+        <h1 class="headline">Make a meaningful impact. Lead your community.</h1>
+        <p class="subcopy">
+          100% of your donation will contribute to giving clean water to those in need.
+          This donation can be transparent and relevant to clients and agents.
+        </p>
 
-    <!-- Real-World Impact Story Section -->
-    <section class="impact-story">
-        <!-- Section headline -->
-        <h2>Real Impact: Meet Amina</h2>
-        <!-- Container for image and text -->
-        <div class="impact-content">
-            <!-- Impact image -->
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80" alt="Amina smiling with clean water" class="impact-image">
-            <!-- Impact story text -->
-            <p>
-                Amina used to walk miles every day to collect water for her family. Thanks to your support, her village now has a clean water well. Amina can go to school and her family is healthier and happier.
-            </p>
-        </div>
-    </section>
+        <form class="cta-pill" action="https://www.charitywater.org/donate" method="get" target="_blank" rel="noopener" aria-label="Donate now">
+          <input class="cta-text" type="text" placeholder="Start building your legacy!" name="message" />
+          <button class="cta-btn" type="submit">Donate</button>
+        </form>
+      </div>
 
-    <!-- Call-to-Action Section: This encourages visitors to take action -->
-    <section class="call-to-action">
-        <h2>Make a Difference</h2>
-        <p>Your support can help save lives. Every donation brings us closer to a world with clean water for all.</p>
-        <a href="#" class="donate-button">Donate Now</a>
-    </section>
+      <figure class="hero-card" aria-label="Impact photo">
+        <img src="https://cdn2.dropmarkusercontent.com/52043/1949e4436567a4dced4fecfe637f6e9ae867735b91276f4a93bd5d6d3234cd84/preview/4692_Ethiopia_2019_CG-.jpg?Expires=1757276217&Signature=NcLj0DMfITQC9dzE2S96SNaVI-Hbg1kTd6-LmuSwlQxaVeCW67MipxtWR93kmyfRDt7~4-ioOIIZGUBMYnI66iIvs5AW-UPgRIkxIO7K0LP8LU~2tfMW2hiGRIUBJpq6gEWf7WjF8fOD0bH8bobXut5sS6bIT6ekTDhzVyxoNCZgz~oxtaUkDTvTJKfzKS28a9ejOr25fXDZFHjbWhARUGfaj3fbLbGlyl2-qNJ-7Zoe7z0FSiWXBA3escf87ecfoj8AdthwrrdfVsZU56ko0~FNc~5N4j1hZNxfF3Ryu2htKZxV0Od7TFtR7Yt4U2pu6w2tA-CTGn27jp6RQiAEsw__&Key-Pair-Id=APKAITQYWVEN757ZA4KQ"
+             alt="Community in Ethiopia with clean water">
+      </figure>
+    </div>
+  </section>
+
+  <!-- Impact stats -->
+  <section class="section" aria-labelledby="impact">
+    <h2 id="impact">Impact at a glance</h2>
+    <p class="muted" style="margin-top:-4px;margin-bottom:12px;">Proof, transparency, and scale—your gift moves fast and lasts.</p>
+    <div class="grid auto-tiles">
+      <div class="tile"><h3>100% to water</h3><p class="muted">Every public donation funds clean water projects.</p></div>
+      <div class="tile"><h3>29 countries</h3><p class="muted">Local partners deliver lasting solutions.</p></div>
+      <div class="tile"><h3>Transparent</h3><p class="muted">You’ll get updates as projects are completed.</p></div>
+      <div class="tile"><h3>Community-led</h3><p class="muted">Solutions built with and for communities.</p></div>
+    </div>
+  </section>
+
+  <!-- Donation tiers -->
+  <section class="section" aria-labelledby="tiers">
+    <h2 id="tiers">Choose your impact</h2>
+    <div class="grid auto-tiles">
+      <div class="tile">
+        <div class="price">$30</div>
+        <p class="muted">Can help bring clean water to 1 person.</p>
+        <a class="donate-top" href="https://www.charitywater.org/donate" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;">Donate $30</a>
+      </div>
+      <div class="tile">
+        <div class="price">$60</div>
+        <p class="muted">Supports sanitation and hygiene training.</p>
+        <a class="donate-top" href="https://www.charitywater.org/donate" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;">Donate $60</a>
+      </div>
+      <div class="tile">
+        <div class="price">$120</div>
+        <p class="muted">Helps fund parts & maintenance for systems.</p>
+        <a class="donate-top" href="https://www.charitywater.org/donate" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;">Donate $120</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How your gift helps -->
+  <section class="section" aria-labelledby="how">
+    <h2 id="how">How your gift helps</h2>
+    <div class="grid auto-tiles">
+      <div class="tile"><h3>1) Identify</h3><p class="muted">Find communities most in need with local partners.</p></div>
+      <div class="tile"><h3>2) Build</h3><p class="muted">Install sustainable water solutions and train caretakers.</p></div>
+      <div class="tile"><h3>3) Report</h3><p class="muted">Share progress and outcomes to keep you informed.</p></div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="section" aria-labelledby="stories">
+    <h2 id="stories">What donors say</h2>
+    <div class="quote">
+      <p>“I wanted my giving to be simple and transparent. Seeing the updates from projects made me feel part of something bigger.”</p>
+      <small>— A grateful donor</small>
+    </div>
+    <p style="margin-top:10px;">
+      <a class="link-underline" href="https://www.charitywater.org/stories" target="_blank" rel="noopener">Read stories of impact →</a>
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" aria-labelledby="faq">
+    <h2 id="faq">Frequently asked questions</h2>
+    <details>
+      <summary>Does 100% of my donation go to water?</summary>
+      <div class="muted" style="margin-top:8px;">Public donations fund water projects. Operations are covered by separate private donors and partners.</div>
+    </details>
+    <details>
+      <summary>Will I get updates on the projects I support?</summary>
+      <div class="muted" style="margin-top:8px;">Yes—expect progress updates as projects are implemented and completed.</div>
+    </details>
+    <details>
+      <summary>Is my donation tax-deductible?</summary>
+      <div class="muted" style="margin-top:8px;">Donations may be tax-deductible depending on your location. You’ll receive a receipt after giving.</div>
+    </details>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="section" style="margin-bottom:24px;">
+      <h2 style="margin:0 0 10px; font-size:var(--fs-h2);">Ready to make a difference?</h2>
+      <a class="donate-top" href="https://www.charitywater.org/donate" target="_blank" rel="noopener">Donate now</a>
+    </div>
+    <small>© <span id="year">2025</span> Charity:Water (Demo).</small>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
